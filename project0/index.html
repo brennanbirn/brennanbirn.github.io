@@ -39,22 +39,24 @@
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <h2>Part 1: Selfie &mdash; The Wrong Way vs. The Right Way</h2>
                 <p>
-                  Instead of a human subject, I ran this experiment on my plush Labubu &mdash; the face has
-                  plenty of the same landmark features (eyes, nose/mouth, ears) that make focal-length distortion
-                  easy to see, and it holds a pose a lot better than a friend does. I kept the camera-to-subject
-                  distance and framing roughly matched to the subject's size while stepping through five focal
-                  lengths: 13mm, 24mm, 35mm, 48mm, and 100mm.
+                  This is my friend, Mr. Labubu. He finally has a use after sitting on my desk for a year serving
+                  as my monitor deduster &mdash; please be nice to him.
                 </p>
                 <p>
-                  At <strong>13mm</strong> (the wide-angle "wrong way" shot, taken close up) the center of
-                  projection sits very near the subject's face, so the nearest features &mdash; the nose and
-                  the front of the muzzle &mdash; are much closer to the camera than the ears, and project as
-                  disproportionately large. The face looks puffed out and bulbous. As focal length increases
-                  and I step back to compensate, that effect steadily relaxes: by <strong>100mm</strong> (the
-                  "right way" shot, taken from much farther away and zoomed in), the camera is far enough away
-                  that the difference in distance between the nose and the ears is small relative to the total
-                  distance, so all features project at nearly the same relative scale. The face reads as flatter
-                  and more natural &mdash; much closer to how the toy actually looks in person.
+                  I shot this on an iPhone 17 Pro Max, stepping through five of its native zoom settings &mdash;
+                  0.5x, 1x, 1.5x, 2x, and 4x &mdash; which correspond to the 13mm, 24mm, 35mm, 48mm, and 100mm
+                  labels above. Between the 13mm shot and the 100mm shot I stepped back roughly three to four feet.
+                </p>
+                <p>
+                  The distortion in the close-up comes down to camera placement relative to the surface. As the
+                  camera gets closer, parts of Mr. Labubu that sit off the central axis get projected at a larger
+                  relative scale than the parts near the center &mdash; the closer you are, the more that
+                  projection scale changes from one part of the object to the next, so the features nearest the
+                  camera balloon out relative to everything else. Stepping back and zooming in fixes this two
+                  ways: moving farther away shrinks how much the small-scale surface detail (the fur, the
+                  individual features) affects the image relative to the whole frame, so those parts read as
+                  less distorted; and simply being close in the first place is what made the near features claim
+                  more of the screen to begin with, exaggerating their spatial geometry.
                 </p>
               </td>
             </tr>
@@ -63,8 +65,8 @@
           <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="text-align:center;width:100%;vertical-align:top">
-                <img src="media/part1_focal_length_progression.jpg" width="100%" alt="Progression of the same subject shot at 13mm, 24mm, 35mm, 48mm, and 100mm, framing kept roughly constant">
-                <br><em>13mm (close, wide-angle, distorted &mdash; "the wrong way") through 100mm (far, zoomed in, compressed &mdash; "the right way"), with the framing kept roughly constant across all five shots.</em>
+                <img src="media/part1_focal_length_progression.jpg" width="100%" alt="Mr. Labubu shot at 13mm, 24mm, 35mm, 48mm, and 100mm (0.5x-4x on an iPhone 17 Pro Max), framing kept roughly constant" class="proj-img">
+                <br><em>0.5x/13mm (close &mdash; "the wrong way") through 4x/100mm (stepped back ~3&ndash;4 ft, zoomed in &mdash; "the right way").</em>
               </td>
             </tr>
           </tbody></table>
@@ -75,18 +77,21 @@
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <h2>Part 2: Architectural Perspective Compression</h2>
                 <p>
-                  For this part I flew a drone over a building with a large elliptical glass skylight set into
-                  a curved courtyard roof. The <strong>Start</strong> frame is a close, low pass directly over
-                  the skylight, filling the frame with the ellipse and its surrounding facade &mdash; depth cues
-                  like the curvature of the roofline and the ellipse's proportions are pronounced. The
-                  <strong>End</strong> frame is captured from much farther away and higher up, pulling back until
-                  the building is a small element embedded in the surrounding city block. As the camera-to-subject
-                  distance grows across the "increasing distance" sequence in between, the relative depth
-                  differences across the structure shrink: the skylight and roofline compress and flatten, and
-                  the building reads less as a 3D volume and more as a shape sitting on a map. That's the same
-                  underlying effect as the classic zoomed-in-from-far vs. walked-up-close comparison, just
-                  demonstrated by pulling a drone back through a whole sequence of distances rather than two
-                  discrete shots.
+                  This sequence comes from continuous 4K overhead video I shot with my Skyrover X1 over the
+                  Gateway Building. I started directly above its elliptical glass skylight at a close, low
+                  altitude, then climbed straight up to about 400 feet. In Premiere Pro, I cropped in on the
+                  footage and pulled keyframes at increasing altitude to build the <strong>Start</strong>
+                  &rarr; <strong>End</strong> sequence above.
+                </p>
+                <p>
+                  The effect is most visible around the oval ring of the skylight itself, where you can see
+                  straight down onto a staircase inside the building. In the Start frame, the staircase is
+                  clearly visible past the edge of the ring; by the End frame it's largely lost. That's a
+                  field-of-view effect: the closer you are to an opening, the more of your screen it takes up,
+                  so you can effectively peer out to the sides at larger angles and see farther down and around
+                  inside it. As you climb straight up, the angle at which you can look through that opening
+                  narrows, so you lose that side visibility &mdash; and the same thing happens to every other
+                  object in the frame, which is what flattens and compresses the whole scene at altitude.
                 </p>
               </td>
             </tr>
@@ -95,8 +100,8 @@
           <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="text-align:center;width:100%;vertical-align:top">
-                <img src="media/part2_perspective_compression.jpg" width="100%" alt="Drone sequence showing a building's elliptical skylight from close (Start) to far (End), with an increasing-distance progression in between">
-                <br><em>Start (close, low pass) &rarr; End (far, high pass), with four intermediate frames showing the perspective compress as distance increases.</em>
+                <img src="media/part2_perspective_compression.jpg" width="100%" alt="Drone sequence showing the Gateway Building's elliptical skylight from close, low altitude (Start) to a 400-foot altitude (End), with an increasing-altitude progression in between" class="proj-img">
+                <br><em>Start (close, low altitude) &rarr; End (~400 ft), with four intermediate frames showing the perspective compress with altitude.</em>
               </td>
             </tr>
           </tbody></table>
@@ -108,14 +113,22 @@
                 <h2>Part 3: The Dolly Zoom</h2>
                 <p>
                   I recreated the dolly zoom with a drone (a Skyrover X-1) at night around campus, flown well
-                  clear of anyone and in otherwise empty spaces. For each take, I moved the drone backward while
-                  zooming in &mdash; or pushed in while zooming out &mdash; keeping the main subject roughly the
-                  same size in frame throughout, then stitched the stills/frames into a GIF. Because the subject
-                  stays a constant size while the center of projection moves, the background around it visibly
-                  swells or shrinks &mdash; the classic "Vertigo" effect. I shot three takes to compare how the
-                  effect reads against different subjects: the Campanile against the night skyline, a close pass
-                  along a building's curved glass facade, and a straight-down top view of the elliptical skylight
-                  from Part 2.
+                  clear of anyone and in otherwise empty spaces. All three takes are continuous 4K30fps footage,
+                  shot and converted to GIF the same way as Part 2: fly the shot, then crop in and pull frames in
+                  Premiere Pro. For the Campanile take, I started around 175 feet from the tower and flew back
+                  roughly 1,500 more feet while zooming in to keep it framed the same size. For the Gateway
+                  Building facade take, I started closer, around 300 feet, and pulled back to roughly 2,000 feet.
+                  The straight-down skylight take reuses the same climb described in Part 2.
+                </p>
+                <p>
+                  The effect reads best when you start close enough &mdash; or with a high enough aspect ratio on
+                  the subject &mdash; that the initial distortion is obvious; my drone's fisheye lens helps
+                  exaggerate that even from farther out. The other big effect, which I've seen other people
+                  mention too, is how much the background warps and swells around the subject. Because holding
+                  the dolly zoom means continuously zooming in as you pull back, you're capturing a progressively
+                  narrower slice of the scene &mdash; the same field-of-view effect as the skylight in Part 2
+                  &mdash; so even though the subject in front stays a constant size, the background behind it
+                  expands outward as the shot continues.
                 </p>
               </td>
             </tr>
@@ -124,20 +137,20 @@
           <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="text-align:center;width:100%;vertical-align:top;padding-bottom:20px">
-                <img src="media/part3_campanile.gif" width="100%" alt="Dolly zoom on the Campanile at night">
-                <br><em>Take 1 &mdash; Sather Tower (the Campanile), night skyline.</em>
+                <img src="media/part3_campanile.gif" width="100%" alt="Dolly zoom on the Campanile at night" class="proj-img">
+                <br><em>Take 1 &mdash; Sather Tower (the Campanile). Started ~175 ft out, pulled back ~1,500 ft while zooming in.</em>
               </td>
             </tr>
             <tr>
               <td style="text-align:center;width:100%;vertical-align:top;padding-bottom:20px">
-                <img src="media/part3_building.gif" width="100%" alt="Dolly zoom along a building's curved glass facade at night">
-                <br><em>Take 2 &mdash; curved glass facade, low pass.</em>
+                <img src="media/part3_building.gif" width="100%" alt="Dolly zoom along the Gateway Building's curved glass facade at night" class="proj-img">
+                <br><em>Take 2 &mdash; Gateway Building, curved glass facade. Started ~300 ft out, pulled back to ~2,000 ft.</em>
               </td>
             </tr>
             <tr>
               <td style="text-align:center;width:100%;vertical-align:top">
-                <img src="media/part3_topdown.gif" width="100%" alt="Top-down dolly zoom over the elliptical skylight at night">
-                <br><em>Take 3 &mdash; straight-down view of the elliptical skylight.</em>
+                <img src="media/part3_topdown.gif" width="100%" alt="Top-down dolly zoom over the Gateway Building's elliptical skylight at night" class="proj-img">
+                <br><em>Take 3 &mdash; Gateway Building, straight-down view of the elliptical skylight (same climb as Part 2).</em>
               </td>
             </tr>
           </tbody></table>

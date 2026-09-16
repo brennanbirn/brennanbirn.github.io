@@ -26,6 +26,8 @@
          plate grids and equations this write-up needs. */
       h3 { margin: 22px 0 6px 0; font-family: 'Lato', Verdana, Helvetica, sans-serif;
            font-size: 16px; font-weight: 700; }
+      h4 { margin: 16px 0 4px 14px; font-family: 'Lato', Verdana, Helvetica, sans-serif;
+           font-size: 14px; font-weight: 700; color: #444; }
       p  { line-height: 1.62; }
       ul, ol { line-height: 1.62; padding-left: 20px; }
       li { padding-bottom: 5px; }
@@ -709,7 +711,7 @@
                   cannot trigger a runaway crop.
                 </p>
 
-                <h3>A cropping bug</h3>
+                <h4>A cropping bug</h4>
                 <p>
                   My first version selected the last row or column whose score exceeded the threshold anywhere
                   inside the search window. A single dark band within the image could therefore drag the crop
@@ -823,7 +825,7 @@
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
-                <h3>Z-score normalization is identical here</h3>
+                <h4>Z-score normalization is identical here</h4>
                 <p>
                   I also implemented a z-score version of percentile contrast normalization, expecting it to
                   behave differently. It did not: both versions produced pixel-identical output.

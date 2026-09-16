@@ -96,6 +96,7 @@
           </tbody></table>
 
           <!-- ===================== Intro ===================== -->
+
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
@@ -150,11 +151,12 @@
           </tbody></table>
 
           <!-- ===================== 01 ===================== -->
+
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <hr>
-                <h2>01 &middot; Brute-force alignment on small plates</h2>
+                <h2>01 &middot; Single-scale alignment</h2>
                 <p>
                   I use the blue exposure as the fixed reference. For each green and red channel, I test every
                   integer displacement \((\Delta y,\Delta x)\) inside a search window, score the alignment, and
@@ -259,12 +261,11 @@
             </tr>
           </tbody></table>
 
-          <!-- ===================== 02 ===================== -->
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <hr>
-                <h2>02 &middot; The image pyramid</h2>
+                <h2>02 &middot; Multi-scale alignment</h2>
                 <p>
                   The full-resolution TIFF plates require displacements as large as 178 pixels. A brute-force
                   search with half-width \(d\) evaluates
@@ -381,212 +382,15 @@
           </tbody></table>
 
           <!-- ===================== 03 ===================== -->
-          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-            <tr>
-              <td style="padding:16px;width:100%;vertical-align:middle">
-                <hr>
-                <h2>03 &middot; Where raw intensity fails</h2>
-
-                <h3>Emir: the issue is not NCC alone</h3>
-                <p>
-                  The <em>emir</em> plate fails dramatically in the red channel. Raw NCC returns
-                </p>
-                \[ (416, -456) \]
-                <p>rather than the visually correct displacement, approximately</p>
-                \[ (107, 40). \]
-                <p>The cause is visible in the emir&rsquo;s robe.</p>
-
-                <table class="dtable">
-                  <thead><tr><th>Region</th><th class="n">Blue</th><th class="n">Green</th><th class="n">Red</th></tr></thead>
-                  <tbody>
-                    <tr><td>Robe</td><td class="n">0.562</td><td class="n">0.385</td><td class="n">0.310</td></tr>
-                    <tr><td>Whole plate</td><td class="n">0.529</td><td class="n">0.489</td><td class="n">0.588</td></tr>
-                  </tbody>
-                </table>
-                <em class="figcap"><b>Table 2.</b> The robe is brightest in blue and darkest in red, while the
-                  whole plate follows the opposite ordering: red is the brightest channel overall.</em>
-              </td>
-            </tr>
-          </tbody></table>
-
-          <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-            <tr>
-              <td style="width:100%;vertical-align:top;padding:0 16px">
-                <img src="media/fig_emir_channels.jpg" width="100%" class="proj-img"
-                     alt="Emir's blue, green and red exposures, showing the robe inverting from bright to dark">
-                <em class="figcap"><b>Figure 3.</b> The robe across the blue, green, and red exposures. It is
-                  bright in blue, intermediate in green, and nearly black in red.</em>
-              </td>
-            </tr>
-          </tbody></table>
 
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <p>
-                  The robe is inverted relative to the rest of the scene. A matcher based on brightness can
-                  therefore prefer an unrelated patch with a similar red intensity distribution over the
-                  robe&rsquo;s true position.
+                  One plate fails here. Raw-intensity matching places <em>emir</em>&rsquo;s red channel at
+                  (416, &minus;456) instead of roughly (107, 40). Section 07 diagnoses why and fixes it.
                 </p>
-                <p>
-                  I initially suspected that NCC was simply the wrong metric, so I tested SSD as well.
-                </p>
-
-                <table class="dtable">
-                  <thead><tr><th>Emir red-channel method</th><th class="n">Offset</th><th>Correct?</th></tr></thead>
-                  <tbody>
-                    <tr><td>Raw intensity + NCC</td><td class="n">(416, &minus;456)</td><td>No</td></tr>
-                    <tr><td>Raw intensity + SSD</td><td class="n">(99, &minus;211)</td><td>No</td></tr>
-                    <tr><td>Sobel gradient magnitude + NCC</td><td class="n">(107, 40)</td><td>Yes</td></tr>
-                  </tbody>
-                </table>
-                <em class="figcap"><b>Table 3.</b> Both raw-intensity metrics fail, though they fail at
-                  different offsets. The green channel consistently recovers (49, 24).</em>
-              </td>
-            </tr>
-          </tbody></table>
-
-          <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-            <tr>
-              <td style="width:100%;vertical-align:top;padding:0 16px">
-                <div class="grid g3">
-                  <div><img src="media/emir.jpg" class="proj-img" alt="emir aligned with raw intensity and NCC"><p class="cap"><b>Raw intensity + NCC</b><span class="off">R (416, &minus;456)</span></p></div>
-                  <div><img src="media/emir_ssd_raw.jpg" class="proj-img" alt="emir aligned with raw intensity and SSD"><p class="cap"><b>Raw intensity + SSD</b><span class="off">R (99, &minus;211)</span></p></div>
-                  <div><img src="media/edges_emir.jpg" class="proj-img" alt="emir aligned with gradient magnitude and NCC"><p class="cap"><b>Gradient magnitude + NCC</b><span class="off">R (107, 40)</span></p></div>
-                </div>
-                <em class="figcap"><b>Figure 4.</b> Two raw-intensity metrics produce two different incorrect
-                  registrations; gradient matching produces the correct result. If NCC itself were the problem,
-                  SSD should have recovered the correct displacement. It did not.</em>
-              </td>
-            </tr>
-          </tbody></table>
-
-          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-            <tr>
-              <td style="padding:16px;width:100%;vertical-align:middle">
-                <h3>Why NCC does not solve this case</h3>
-                <p>NCC is invariant to a global relationship of the form</p>
-                \[ I_2 = aI_1 + b. \]
-                <p>
-                  That model does not describe <em>emir</em>. The robe changes relative brightness across
-                  channels differently from the rest of the image, so no single global \(a\) and \(b\) can map
-                  the blue exposure to the red one.
-                </p>
-                <p>
-                  The problem is not a uniform brightness shift or contrast change. It is a spatially varying
-                  photometric change caused by the historical color filters.
-                </p>
-
-                <h3>Matching gradient magnitude</h3>
-                <p>The final registration method matches Sobel gradient magnitude:</p>
-                \[ M = \sqrt{G_x^2 + G_y^2}. \]
-                <p>
-                  A Sobel response changes sign when contrast reverses, but gradient magnitude does not:
-                </p>
-                \[ (-G_x)^2 = G_x^2, \qquad (-G_y)^2 = G_y^2. \]
-                <p>
-                  An edge therefore produces the same magnitude whether brightness rises or falls across it. The
-                  robe boundary remains visible in every channel despite its red-blue contrast reversal.
-                </p>
-                <p>
-                  Gradient matching does not require corresponding pixels to have the same brightness. It
-                  requires them to preserve the same spatial structure.
-                </p>
-                <p>
-                  The failure is also asymmetric: green aligns correctly under every tested method because its
-                  appearance still tracks blue. Only red fails because only red inverts the robe&rsquo;s
-                  contrast. A geometric bug would be expected to affect both channels.
-                </p>
-
-                <h3>Icon: the coarsest level can be too coarse</h3>
-                <p>
-                  Gradient matching fixes <em>emir</em>, but it initially broke <em>icon</em>, which had
-                  registered correctly with raw intensities.
-                </p>
-                <p>With <code>min_size = 64</code>, the gradient-based pyramid returned</p>
-                \[ (862, 128) \]
-                <p>for the red channel instead of the expected result near</p>
-                \[ (89, 23). \]
-                <p>
-                  <em>Icon</em> contains repeated gilded ornament. At a 64-pixel base level, that ornament
-                  collapses into a nearly periodic texture. Several displacements score similarly, and the
-                  coarse search locks onto the wrong repeated feature. Higher-resolution refinement cannot
-                  escape once the pyramid begins in the wrong displacement basin.
-                </p>
-                <p>
-                  Increasing the base-case size to 128 pixels preserves enough distinctive image structure to
-                  resolve the ambiguity.
-                </p>
-
-                <table class="dtable">
-                  <thead><tr><th>Base-case size</th><th class="n">Red offset</th><th>Result</th></tr></thead>
-                  <tbody>
-                    <tr><td><code>min_size = 64</code></td><td class="n">(862, 128)</td><td>Wrong repeated feature</td></tr>
-                    <tr><td><code>min_size = 128</code></td><td class="n">(90, 23)</td><td>Correct</td></tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody></table>
-
-          <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-            <tr>
-              <td style="width:100%;vertical-align:top;padding:0 16px">
-                <div class="grid g2">
-                  <div><img src="media/icon_minsize64_broken.jpg" class="proj-img" alt="icon misaligned with min_size 64"><p class="cap"><b><code>min_size = 64</code></b><span class="off">R (862, 128)</span></p></div>
-                  <div><img src="media/edges_icon.jpg" class="proj-img" alt="icon correctly aligned with min_size 128"><p class="cap"><b><code>min_size = 128</code></b><span class="off">R (90, 23)</span></p></div>
-                </div>
-                <em class="figcap"><b>Figure 5.</b> Gradient alignment on <em>icon</em>. At 64 pixels, the search
-                  locks onto the wrong repeated ornament. At 128 pixels, the coarsest level retains enough
-                  distinctive structure to identify the correct displacement.</em>
-              </td>
-            </tr>
-          </tbody></table>
-
-          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-            <tr>
-              <td style="padding:16px;width:100%;vertical-align:middle">
-                <p>
-                  This is a useful counterexample to the idea that a smaller base image is always better. The
-                  coarsest level is where the algorithm chooses its global displacement basin, so it must still
-                  retain enough unique scene information to make that decision.
-                </p>
-                <p>
-                  With gradient magnitude matching and <code>min_size = 128</code>, all 14 TIFF plates align
-                  correctly.
-                </p>
-
-                <table class="dtable">
-                  <thead><tr><th>Plate</th><th class="n">Green offset</th><th class="n">Red offset</th><th class="n">Time (s)</th></tr></thead>
-                  <tbody>
-                    <tr><td>cathedral</td><td class="n">(5, 2)</td><td class="n">(12, 3)</td><td class="n">0.1</td></tr>
-                    <tr><td>monastery</td><td class="n">(&minus;3, 2)</td><td class="n">(3, 2)</td><td class="n">0.1</td></tr>
-                    <tr><td>tobolsk</td><td class="n">(3, 3)</td><td class="n">(6, 3)</td><td class="n">0.1</td></tr>
-                    <tr><td>church</td><td class="n">(25, 4)</td><td class="n">(58, &minus;4)</td><td class="n">3.7</td></tr>
-                    <tr><td>emir</td><td class="n">(49, 24)</td><td class="n">(107, 40)</td><td class="n">3.5</td></tr>
-                    <tr><td>harvesters</td><td class="n">(60, 17)</td><td class="n">(124, 14)</td><td class="n">3.7</td></tr>
-                    <tr><td>icon</td><td class="n">(42, 17)</td><td class="n">(90, 23)</td><td class="n">3.8</td></tr>
-                    <tr><td>ilemselga</td><td class="n">(40, 7)</td><td class="n">(131, 11)</td><td class="n">3.7</td></tr>
-                    <tr><td>melons</td><td class="n">(80, 10)</td><td class="n">(177, 13)</td><td class="n">3.7</td></tr>
-                    <tr><td>religious painting</td><td class="n">(30, 7)</td><td class="n">(70, 6)</td><td class="n">3.6</td></tr>
-                    <tr><td>self portrait</td><td class="n">(78, 29)</td><td class="n">(176, 37)</td><td class="n">3.7</td></tr>
-                    <tr><td>siren</td><td class="n">(49, &minus;6)</td><td class="n">(96, &minus;24)</td><td class="n">3.6</td></tr>
-                    <tr><td>three generations</td><td class="n">(54, 12)</td><td class="n">(111, 9)</td><td class="n">3.5</td></tr>
-                    <tr><td>wharf</td><td class="n">(15, &minus;7)</td><td class="n">(83, &minus;16)</td><td class="n">3.5</td></tr>
-                  </tbody>
-                </table>
-                <em class="figcap"><b>Table 4.</b> Pyramid alignment using Sobel gradient magnitude and
-                  <code>min_size = 128</code>. All 14 provided TIFF plates register correctly.</em>
-              </td>
-            </tr>
-          </tbody></table>
-
-          <!-- ===================== 04 ===================== -->
-          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-            <tr>
-              <td style="padding:16px;width:100%;vertical-align:middle">
-                <hr>
-                <h2>04 &middot; Four additional Library of Congress plates</h2>
+                <h3>Four additional Library of Congress plates</h3>
                 <p>
                   I selected four additional plates from the Library of Congress collection and processed them
                   using the same code and fixed parameter set.
@@ -625,7 +429,7 @@
                   <div><img src="media/mine_locomotive.jpg" class="proj-img" alt="Locomotive Ab 132"><p class="cap"><b>Locomotive &ldquo;&#1040;&#1073; 132&rdquo;</b><span class="off">prok-00458</span></p></div>
                   <div><img src="media/mine_dagestan.jpg" class="proj-img" alt="Tipy Dagestana"><p class="cap"><b>Tipy Dagestana</b><span class="off">prok-01477</span></p></div>
                 </div>
-                <em class="figcap"><b>Figure 6.</b> Additional Library of Congress plates processed with the same
+                <em class="figcap"><b>Figure 3.</b> Additional Library of Congress plates processed with the same
                   registration and enhancement settings.</em>
               </td>
             </tr>
@@ -652,12 +456,17 @@
             </tr>
           </tbody></table>
 
-          <!-- ===================== 05 ===================== -->
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <hr>
-                <h2>05 &middot; Enhancements</h2>
+                <h2>03 &middot; Automatic cropping</h2>
+                <p>
+                  Sections 03 to 07 are the five bells and whistles, in the same order as the assignment
+                  rubric. Better features (Section 07) runs first in the actual pipeline, aligning the
+                  channels; the remaining four then run in a fixed order with one parameter set for every
+                  plate:
+                </p>
                 <p>
                   The final processing pipeline uses one fixed order and one parameter set for every plate:
                 </p>
@@ -671,21 +480,6 @@
                   contribution of each enhancement easier to isolate.
                 </p>
 
-                <h3>1. Gradient-based registration</h3>
-                <p>
-                  The registration method matches Sobel gradient magnitude rather than raw intensity. This
-                  discards edge polarity while preserving edge location and scene structure.
-                </p>
-                <p>For <em>emir</em>, the red displacement changes from</p>
-                \[ (416, -456) \]
-                <p>to</p>
-                \[ (107, 40). \]
-                <p>
-                  The remaining plates move only slightly under gradient matching. Among plates that were
-                  already correctly aligned with raw intensity, the largest shift change is four pixels.
-                </p>
-
-                <h3>2. Automatic cropping</h3>
                 <p>
                   Even after registration, image borders remain unreliable. They contain dark plate edges,
                   scratches, damaged regions, and wrapped image strips introduced by circular shifts. These
@@ -740,7 +534,7 @@
                   <div><img src="media/stage_precrop_ilemselga.jpg" class="proj-img" alt="ilemselga before cropping, showing colored border bands and plate edge"><p class="cap"><b>Ilemselga &mdash; before</b></p></div>
                   <div><img src="media/stage_crop_ilemselga.jpg" class="proj-img" alt="ilemselga after automatic cropping"><p class="cap"><b>After &mdash; crop only</b><span class="off">&minus;18.3% rows, &minus;16.6% cols</span></p></div>
                 </div>
-                <em class="figcap"><b>Figure 7.</b> Automatic crop only. Registration, white balance, color
+                <em class="figcap"><b>Figure 4.</b> Automatic crop only. Registration, white balance, color
                   mapping, and contrast remain unchanged. Both plates carry colored bands on all four edges
                   before cropping &mdash; <em>siren</em> also retains the dark plate edge and the handwritten
                   &ldquo;1025&rdquo; on the right margin. The detector removes them without cutting into the
@@ -757,7 +551,15 @@
                   survives on <em>harvesters</em> and <em>melons</em> in Figure 12.
                 </p>
 
-                <h3>3. Automatic contrast</h3>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="padding:16px;width:100%;vertical-align:middle">
+                <hr>
+                <h2>04 &middot; Automatic contrast</h2>
                 <p>
                   The contrast stage maps a lower percentile to 0 and an upper percentile to 1:
                 </p>
@@ -788,7 +590,7 @@
                     <tr><td>1st/99th percentile stretch</td><td class="n">0.000 / 1.000</td><td class="n">0.230</td><td class="n">96.2%</td></tr>
                   </tbody>
                 </table>
-                <em class="figcap"><b>Table 5.</b> Two extreme pixels make min-max stretching nearly a no-op.
+                <em class="figcap"><b>Table 2.</b> Two extreme pixels make min-max stretching nearly a no-op.
                   Percentile stretching changes 96.2% of pixels and raises the image standard deviation by
                   31%.</em>
               </td>
@@ -800,7 +602,7 @@
               <td style="width:100%;vertical-align:top;padding:0 16px">
                 <img src="media/fig_contrast_hist.jpg" width="100%" class="proj-img"
                      alt="Per-channel intensity histograms for church under no stretch, min-max stretch, and percentile stretch">
-                <em class="figcap"><b>Figure 8.</b> Per-channel intensity histograms for <em>church</em>. The
+                <em class="figcap"><b>Figure 5.</b> Per-channel intensity histograms for <em>church</em>. The
                   no-stretch and min-max distributions are almost identical because a few pixels already span the
                   available range. Percentile stretching redistributes the bulk of the image across \([0,1]\),
                   while the clipped tails accumulate at the endpoints.</em>
@@ -816,7 +618,7 @@
                   <div><img src="media/stage_minmax_church.jpg" class="proj-img" alt="church after min-max stretch"><p class="cap"><b>Min/max</b><span class="off">unchanged</span></p></div>
                   <div><img src="media/stage_contrast_church.jpg" class="proj-img" alt="church after percentile stretch"><p class="cap"><b>Percentile stretch</b></p></div>
                 </div>
-                <em class="figcap"><b>Figure 9.</b> Contrast-only comparison on <em>church</em>. Min-max
+                <em class="figcap"><b>Figure 6.</b> Contrast-only comparison on <em>church</em>. Min-max
                   stretching is visually unchanged; percentile stretching expands the visible tonal range.</em>
               </td>
             </tr>
@@ -840,7 +642,15 @@
                   are mathematically equivalent.
                 </p>
 
-                <h3>4. Automatic white balance</h3>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="padding:16px;width:100%;vertical-align:middle">
+                <hr>
+                <h2>05 &middot; Automatic white balance</h2>
                 <p>
                   Gray-world white balance assumes that the average scene color should be neutral. It rescales
                   each channel so that all three channel means match:
@@ -870,7 +680,7 @@
                     <tr><td>Gray world &rarr; contrast</td><td class="n">0.419</td><td class="n">0.418</td><td class="n">0.413</td><td class="n">0.005</td></tr>
                   </tbody>
                 </table>
-                <em class="figcap"><b>Table 6.</b> White-world correction after contrast stretching is exactly an
+                <em class="figcap"><b>Table 3.</b> White-world correction after contrast stretching is exactly an
                   identity. Channel spread is
                   \(\max(\mu_R,\mu_G,\mu_B) - \min(\mu_R,\mu_G,\mu_B)\).
                   This metric is not a neutral image-quality measure because minimizing it is gray-world&rsquo;s
@@ -886,7 +696,7 @@
                   <div><img src="media/stage_crop_harvesters.jpg" class="proj-img" alt="harvesters before white balance"><p class="cap"><b>Before</b></p></div>
                   <div><img src="media/stage_wb_harvesters.jpg" class="proj-img" alt="harvesters after gray-world white balance"><p class="cap"><b>After &mdash; gray world only</b></p></div>
                 </div>
-                <em class="figcap"><b>Figure 10.</b> Gray-world correction only on <em>harvesters</em>. The shift
+                <em class="figcap"><b>Figure 7.</b> Gray-world correction only on <em>harvesters</em>. The shift
                   is most visible in the clothing.</em>
               </td>
             </tr>
@@ -900,7 +710,15 @@
                   the clearest example.
                 </p>
 
-                <h3>5. HSV color mapping</h3>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="padding:16px;width:100%;vertical-align:middle">
+                <hr>
+                <h2>06 &middot; Better color mapping</h2>
                 <p>
                   The Prokudin-Gorskii filters do not correspond exactly to modern sRGB primaries. Even a
                   correctly aligned RGB stack can therefore appear muted.
@@ -929,7 +747,7 @@
                   <div><img src="media/stage_wb_melons.jpg" class="proj-img" alt="melons before saturation adjustment"><p class="cap"><b>Before</b></p></div>
                   <div><img src="media/stage_map_melons.jpg" class="proj-img" alt="melons after saturation adjustment"><p class="cap"><b>After &mdash; saturation only</b></p></div>
                 </div>
-                <em class="figcap"><b>Figure 11.</b> Saturation-only comparison on <em>melons</em>.</em>
+                <em class="figcap"><b>Figure 8.</b> Saturation-only comparison on <em>melons</em>.</em>
               </td>
             </tr>
           </tbody></table>
@@ -951,12 +769,224 @@
             </tr>
           </tbody></table>
 
-          <!-- ===================== 06 ===================== -->
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
-              <td style="padding:16px 16px 0 16px;width:100%;vertical-align:middle">
+              <td style="padding:16px;width:100%;vertical-align:middle">
                 <hr>
-                <h2>06 &middot; All eighteen plates</h2>
+                <h2>07 &middot; Better features</h2>
+                <h3>Emir: the issue is not NCC alone</h3>
+                <p>
+                  The <em>emir</em> plate fails dramatically in the red channel. Raw NCC returns
+                </p>
+                \[ (416, -456) \]
+                <p>rather than the visually correct displacement, approximately</p>
+                \[ (107, 40). \]
+                <p>The cause is visible in the emir&rsquo;s robe.</p>
+
+                <table class="dtable">
+                  <thead><tr><th>Region</th><th class="n">Blue</th><th class="n">Green</th><th class="n">Red</th></tr></thead>
+                  <tbody>
+                    <tr><td>Robe</td><td class="n">0.562</td><td class="n">0.385</td><td class="n">0.310</td></tr>
+                    <tr><td>Whole plate</td><td class="n">0.529</td><td class="n">0.489</td><td class="n">0.588</td></tr>
+                  </tbody>
+                </table>
+                <em class="figcap"><b>Table 4.</b> The robe is brightest in blue and darkest in red, while the
+                  whole plate follows the opposite ordering: red is the brightest channel overall.</em>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="width:100%;vertical-align:top;padding:0 16px">
+                <img src="media/fig_emir_channels.jpg" width="100%" class="proj-img"
+                     alt="Emir's blue, green and red exposures, showing the robe inverting from bright to dark">
+                <em class="figcap"><b>Figure 9.</b> The robe across the blue, green, and red exposures. It is
+                  bright in blue, intermediate in green, and nearly black in red.</em>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="padding:16px;width:100%;vertical-align:middle">
+                <p>
+                  The robe is inverted relative to the rest of the scene. A matcher based on brightness can
+                  therefore prefer an unrelated patch with a similar red intensity distribution over the
+                  robe&rsquo;s true position.
+                </p>
+                <p>
+                  I initially suspected that NCC was simply the wrong metric, so I tested SSD as well.
+                </p>
+
+                <table class="dtable">
+                  <thead><tr><th>Emir red-channel method</th><th class="n">Offset</th><th>Correct?</th></tr></thead>
+                  <tbody>
+                    <tr><td>Raw intensity + NCC</td><td class="n">(416, &minus;456)</td><td>No</td></tr>
+                    <tr><td>Raw intensity + SSD</td><td class="n">(99, &minus;211)</td><td>No</td></tr>
+                    <tr><td>Sobel gradient magnitude + NCC</td><td class="n">(107, 40)</td><td>Yes</td></tr>
+                  </tbody>
+                </table>
+                <em class="figcap"><b>Table 5.</b> Both raw-intensity metrics fail, though they fail at
+                  different offsets. The green channel consistently recovers (49, 24).</em>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="width:100%;vertical-align:top;padding:0 16px">
+                <div class="grid g3">
+                  <div><img src="media/emir.jpg" class="proj-img" alt="emir aligned with raw intensity and NCC"><p class="cap"><b>Raw intensity + NCC</b><span class="off">R (416, &minus;456)</span></p></div>
+                  <div><img src="media/emir_ssd_raw.jpg" class="proj-img" alt="emir aligned with raw intensity and SSD"><p class="cap"><b>Raw intensity + SSD</b><span class="off">R (99, &minus;211)</span></p></div>
+                  <div><img src="media/edges_emir.jpg" class="proj-img" alt="emir aligned with gradient magnitude and NCC"><p class="cap"><b>Gradient magnitude + NCC</b><span class="off">R (107, 40)</span></p></div>
+                </div>
+                <em class="figcap"><b>Figure 10.</b> Two raw-intensity metrics produce two different incorrect
+                  registrations; gradient matching produces the correct result. If NCC itself were the problem,
+                  SSD should have recovered the correct displacement. It did not.</em>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="padding:16px;width:100%;vertical-align:middle">
+                <h3>Why NCC does not solve this case</h3>
+                <p>NCC is invariant to a global relationship of the form</p>
+                \[ I_2 = aI_1 + b. \]
+                <p>
+                  That model does not describe <em>emir</em>. The robe changes relative brightness across
+                  channels differently from the rest of the image, so no single global \(a\) and \(b\) can map
+                  the blue exposure to the red one.
+                </p>
+                <p>
+                  The problem is not a uniform brightness shift or contrast change. It is a spatially varying
+                  photometric change caused by the historical color filters.
+                </p>
+
+                <h3>Matching gradient magnitude</h3>
+                <p>The final registration method matches Sobel gradient magnitude:</p>
+                \[ M = \sqrt{G_x^2 + G_y^2}. \]
+                <p>
+                  A Sobel response changes sign when contrast reverses, but gradient magnitude does not:
+                </p>
+                \[ (-G_x)^2 = G_x^2, \qquad (-G_y)^2 = G_y^2. \]
+                <p>
+                  An edge therefore produces the same magnitude whether brightness rises or falls across it. The
+                  robe boundary remains visible in every channel despite its red-blue contrast reversal.
+                </p>
+                <p>
+                  Gradient matching does not require corresponding pixels to have the same brightness. It
+                  requires them to preserve the same spatial structure.
+                </p>
+                <p>
+                  The failure is also asymmetric: green aligns correctly under every tested method because its
+                  appearance still tracks blue. Only red fails because only red inverts the robe&rsquo;s
+                  contrast. A geometric bug would be expected to affect both channels.
+                </p>
+
+                <h3>Effect on the other plates</h3>
+                <p>
+                  The registration method matches Sobel gradient magnitude rather than raw intensity. This
+                  discards edge polarity while preserving edge location and scene structure.
+                </p>
+                <p>For <em>emir</em>, the red displacement changes from</p>
+                \[ (416, -456) \]
+                <p>to</p>
+                \[ (107, 40). \]
+                <p>
+                  The remaining plates move only slightly under gradient matching. Among plates that were
+                  already correctly aligned with raw intensity, the largest shift change is four pixels.
+                </p>
+
+                <h3>Icon: the coarsest level can be too coarse</h3>
+                <p>
+                  Gradient matching fixes <em>emir</em>, but it initially broke <em>icon</em>, which had
+                  registered correctly with raw intensities.
+                </p>
+                <p>With <code>min_size = 64</code>, the gradient-based pyramid returned</p>
+                \[ (862, 128) \]
+                <p>for the red channel instead of the expected result near</p>
+                \[ (89, 23). \]
+                <p>
+                  <em>Icon</em> contains repeated gilded ornament. At a 64-pixel base level, that ornament
+                  collapses into a nearly periodic texture. Several displacements score similarly, and the
+                  coarse search locks onto the wrong repeated feature. Higher-resolution refinement cannot
+                  escape once the pyramid begins in the wrong displacement basin.
+                </p>
+                <p>
+                  Increasing the base-case size to 128 pixels preserves enough distinctive image structure to
+                  resolve the ambiguity.
+                </p>
+
+                <table class="dtable">
+                  <thead><tr><th>Base-case size</th><th class="n">Red offset</th><th>Result</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>min_size = 64</code></td><td class="n">(862, 128)</td><td>Wrong repeated feature</td></tr>
+                    <tr><td><code>min_size = 128</code></td><td class="n">(90, 23)</td><td>Correct</td></tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:10px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="width:100%;vertical-align:top;padding:0 16px">
+                <div class="grid g2">
+                  <div><img src="media/icon_minsize64_broken.jpg" class="proj-img" alt="icon misaligned with min_size 64"><p class="cap"><b><code>min_size = 64</code></b><span class="off">R (862, 128)</span></p></div>
+                  <div><img src="media/edges_icon.jpg" class="proj-img" alt="icon correctly aligned with min_size 128"><p class="cap"><b><code>min_size = 128</code></b><span class="off">R (90, 23)</span></p></div>
+                </div>
+                <em class="figcap"><b>Figure 11.</b> Gradient alignment on <em>icon</em>. At 64 pixels, the search
+                  locks onto the wrong repeated ornament. At 128 pixels, the coarsest level retains enough
+                  distinctive structure to identify the correct displacement.</em>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="padding:16px;width:100%;vertical-align:middle">
+                <p>
+                  This is a useful counterexample to the idea that a smaller base image is always better. The
+                  coarsest level is where the algorithm chooses its global displacement basin, so it must still
+                  retain enough unique scene information to make that decision.
+                </p>
+                <p>
+                  With gradient magnitude matching and <code>min_size = 128</code>, all 14 TIFF plates align
+                  correctly.
+                </p>
+
+                <table class="dtable">
+                  <thead><tr><th>Plate</th><th class="n">Green offset</th><th class="n">Red offset</th><th class="n">Time (s)</th></tr></thead>
+                  <tbody>
+                    <tr><td>cathedral</td><td class="n">(5, 2)</td><td class="n">(12, 3)</td><td class="n">0.1</td></tr>
+                    <tr><td>monastery</td><td class="n">(&minus;3, 2)</td><td class="n">(3, 2)</td><td class="n">0.1</td></tr>
+                    <tr><td>tobolsk</td><td class="n">(3, 3)</td><td class="n">(6, 3)</td><td class="n">0.1</td></tr>
+                    <tr><td>church</td><td class="n">(25, 4)</td><td class="n">(58, &minus;4)</td><td class="n">3.7</td></tr>
+                    <tr><td>emir</td><td class="n">(49, 24)</td><td class="n">(107, 40)</td><td class="n">3.5</td></tr>
+                    <tr><td>harvesters</td><td class="n">(60, 17)</td><td class="n">(124, 14)</td><td class="n">3.7</td></tr>
+                    <tr><td>icon</td><td class="n">(42, 17)</td><td class="n">(90, 23)</td><td class="n">3.8</td></tr>
+                    <tr><td>ilemselga</td><td class="n">(40, 7)</td><td class="n">(131, 11)</td><td class="n">3.7</td></tr>
+                    <tr><td>melons</td><td class="n">(80, 10)</td><td class="n">(177, 13)</td><td class="n">3.7</td></tr>
+                    <tr><td>religious painting</td><td class="n">(30, 7)</td><td class="n">(70, 6)</td><td class="n">3.6</td></tr>
+                    <tr><td>self portrait</td><td class="n">(78, 29)</td><td class="n">(176, 37)</td><td class="n">3.7</td></tr>
+                    <tr><td>siren</td><td class="n">(49, &minus;6)</td><td class="n">(96, &minus;24)</td><td class="n">3.6</td></tr>
+                    <tr><td>three generations</td><td class="n">(54, 12)</td><td class="n">(111, 9)</td><td class="n">3.5</td></tr>
+                    <tr><td>wharf</td><td class="n">(15, &minus;7)</td><td class="n">(83, &minus;16)</td><td class="n">3.5</td></tr>
+                  </tbody>
+                </table>
+                <em class="figcap"><b>Table 6.</b> Pyramid alignment using Sobel gradient magnitude and
+                  <code>min_size = 128</code>. All 14 provided TIFF plates register correctly.</em>
+              </td>
+            </tr>
+          </tbody></table>
+
+          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+            <tr>
+              <td style="padding:16px;width:100%;vertical-align:middle">
+                <hr>
+                <h2>08 &middot; Final results on all eighteen plates</h2>
               </td>
             </tr>
           </tbody></table>
@@ -1006,12 +1036,11 @@
             </tr>
           </tbody></table>
 
-          <!-- ===================== 07 ===================== -->
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <hr>
-                <h2>07 &middot; Remaining limitations</h2>
+                <h2>09 &middot; Remaining limitations</h2>
 
                 <h3>A global translation is not always enough</h3>
                 <p>Every method in this project applies one displacement vector,</p>
@@ -1078,12 +1107,11 @@
             </tr>
           </tbody></table>
 
-          <!-- ===================== 08 ===================== -->
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <hr>
-                <h2>08 &middot; Implementation</h2>
+                <h2>10 &middot; Implementation</h2>
                 <p>The project uses NumPy throughout, with scikit-image used only for:</p>
                 <ul>
                   <li>Image loading and saving</li>
@@ -1117,12 +1145,11 @@
             </tr>
           </tbody></table>
 
-          <!-- ===================== 09 ===================== -->
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:16px;width:100%;vertical-align:middle">
                 <hr>
-                <h2>09 &middot; References</h2>
+                <h2>11 &middot; References</h2>
                 <p>
                   Prokudin-Gorskii Collection, Library of Congress, Prints &amp; Photographs Division.
                   <a href="https://www.loc.gov/collections/prokudin-gorskii/">Library of Congress
@@ -1148,7 +1175,6 @@
             </tr>
           </tbody></table>
 
-          <!-- ===================== Footer ===================== -->
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
               <td style="padding:0px">

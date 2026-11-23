@@ -219,6 +219,19 @@ code{font-family:var(--mono);font-size:12px;background:var(--panel);padding:1px 
 #lock{position:fixed;inset:0;z-index:45;background:var(--bg);display:grid;place-items:center;padding:16px}
 #lock .box{max-width:380px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
 #lock h1{margin:0;font-size:24px}
+.card,.blk,.lrow{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.card{cursor:grab}
+body.dragging,body.dragging *{cursor:grabbing!important}
+.dragsrc{opacity:.35}
+.dragclone{position:fixed!important;z-index:90;pointer-events:none;box-shadow:0 14px 34px rgba(0,0,0,.35)!important;transform:rotate(1.5deg);opacity:.95;margin:0;box-sizing:border-box}
+.ghost{position:absolute;left:2px;right:3px;z-index:6;pointer-events:none;border:2px dashed var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 6px;font-size:11px;line-height:1.25;overflow:hidden;box-sizing:border-box}
+.ghost b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ghost em{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--accent);font-weight:600}
+.card.insb{box-shadow:0 3px 0 var(--accent)}
+.lrow.ins{box-shadow:0 -3px 0 var(--accent)} .lrow.insb{box-shadow:0 3px 0 var(--accent)}
+.nav.drop{outline:2px dashed var(--accent);outline-offset:-2px}
+.blk .rs{position:absolute;left:0;right:0;bottom:0;height:8px;cursor:ns-resize}
+.blk:hover .rs::after{content:"";position:absolute;left:calc(50% - 10px);bottom:2px;width:20px;height:3px;border-radius:2px;background:currentColor;opacity:.4}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -503,7 +516,7 @@ function renderTop(){const tm=timer();const tt=tm&&S.tasks.get(tm.taskId);
 
 function cardHTML(id,t){const c=ch(t.channel);const subs=t.subtasks||[];const sd=subs.filter(s=>s.done).length;
   const dur=t.actual?`${fmtDur(t.actual)} / ${fmtDur(t.planned)}`:fmtDur(t.planned);
-  return `<div class="card ${t.done?'done':''} ${sel===id?'sel':''}" draggable="true" data-drag="task:${id}" data-act="open" data-id="${id}">
+  return `<div class="card ${t.done?'done':''} ${sel===id?'sel':''}" data-drag="task:${id}" data-act="open" data-id="${id}">
    <div class="chips">${t.startTime?`<span class="chip">${fmtClock(t.startTime)}</span>`:''}${t.rollover?`<span class="rb" title="Rolled over ${t.rollover} day(s)">↻${t.rollover}</span>`:''}${t.recurId?'<span title="Repeats">⟳</span>':''}<span class="dur mono">${dur}</span></div>
    <div class="ttl">${esc(t.title)}</div>
    ${subs.length?`<div class="foot">☐ ${sd}/${subs.length} subtasks</div>`:''}
@@ -552,7 +565,7 @@ function timelineHTML(date,H,labels){const items=[];
     const style=`top:${top}px;height:${ht}px;left:calc(${it.c/it.n*100}% + 2px);width:calc(${100/it.n}% - 5px)${col?`;--c:${esc(col)}`:''}`;
     const cls=it.k==='task'?`task ${it.x.done?'done':''}`:`event ${it.x.cancelled?'cancelled':''}`;
     const drag=it.k==='task'||it.x.editable;
-    return `<button class="blk ${cls}" style="${style}" draggable="${drag}" data-drag="${it.k}:${esc(it.id)}" data-act="${it.k==='task'?'open':'open-event'}" data-id="${esc(it.id)}" title="${esc(it.title)}${it.x.calName?' · '+esc(it.x.calName):''}"><b>${it.k==='task'&&it.x.done?'✓ ':''}${esc(it.title)}</b><em>${fmtClock(fromMin(it.s))}–${fmtClock(fromMin(it.e%1440))}</em></button>`}).join('');
+    return `<button class="blk ${cls}" style="${style}" ${drag?'':'data-nodrag="1"'} data-drag="${it.k}:${esc(it.id)}" data-act="${it.k==='task'?'open':'open-event'}" data-id="${esc(it.id)}" title="${esc(it.title)}${it.x.calName?' · '+esc(it.x.calName):''}"><b>${it.k==='task'&&it.x.done?'✓ ':''}${esc(it.title)}</b><em>${fmtClock(fromMin(it.s))}–${fmtClock(fromMin(it.e%1440))}</em>${drag&&!it.x.allDay?'<span class="rs" aria-hidden="true"></span>':''}</button>`}).join('');
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   const now=date===todayStr()?`<div class="now" style="top:${nowM/60*H}px"></div>`:'';
   const gut=labels?`<div class="gut" style="height:${24*H}px">${Array.from({length:23},(_,i)=>`<span style="top:${(i+1)*H}px">${(i+1)%12||12} ${i+1<12?'AM':'PM'}</span>`).join('')}</div>`:'';
@@ -572,7 +585,7 @@ function weekCalHTML(){const H=44*zoom;let h=`<div class="wcal"><div style="widt
   return h+'</div>'}
 
 /* ---------- other views ---------- */
-function rowHTML(id,t,actions){const c=ch(t.channel);return `<div class="lrow"><button class="chk ${t.done?'on':''}" data-act="toggle" data-id="${id}" aria-label="Toggle complete">✓</button><button class="t" style="text-align:left" data-act="open" data-id="${id}">${esc(t.title)}</button>${c?`<span class="m" style="color:${esc(c.color)}">#${esc(c.name)}</span>`:''}<span class="m mono">${fmtDur(t.planned)}</span>${actions||''}</div>`}
+function rowHTML(id,t,actions){const c=ch(t.channel);return `<div class="lrow" data-drag="task:${id}"><button class="chk ${t.done?'on':''}" data-act="toggle" data-id="${id}" aria-label="Toggle complete">✓</button><button class="t" style="text-align:left" data-act="open" data-id="${id}">${esc(t.title)}</button>${c?`<span class="m" style="color:${esc(c.color)}">#${esc(c.name)}</span>`:''}<span class="m mono">${fmtDur(t.planned)}</span>${actions||''}</div>`}
 function backlogHTML(){const list=[...S.tasks].filter(([,t])=>!t.date&&!t.archived&&matches(t)).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
   return `<div class="page"><h1>Backlog</h1><p class="sub">Tasks without a day. Schedule them when you plan.</p>
   <div class="addrow" style="margin-bottom:10px"><input id="add-backlog" placeholder="Add to backlog #channel ~1h" aria-label="Add to backlog"></div>
@@ -1024,7 +1037,7 @@ $('#cm').addEventListener('click',e=>{const b=e.target.closest('[data-op]');if(!
     else if(op==='e-del'){if(ev.src==='l')remove('events',T0.key.slice(2));else gfetch(`${CAL}/calendars/${encodeURIComponent(ev.calId)}/events/${ev.gid}`,{method:'DELETE'}).then(()=>{fetchEvents(true);toast('Event deleted',ev.title)}).catch(()=>toast('Could not delete the event',''))}}});
 /* long-press on touch screens opens the same menu */
 let lpTimer=null,lpFired=false,lpStart=null;
-document.addEventListener('touchstart',e=>{const t=e.target.closest('[data-drag],.ad[data-id],.colhead');if(!t)return;lpFired=false;const p=e.touches[0];lpStart=[p.clientX,p.clientY];
+document.addEventListener('touchstart',e=>{if(e.target.closest('[data-drag]:not([data-nodrag])'))return;const t=e.target.closest('[data-drag],.ad[data-id],.colhead');if(!t)return;lpFired=false;const p=e.touches[0];lpStart=[p.clientX,p.clientY];
   lpTimer=setTimeout(()=>{lpFired=true;navigator.vibrate?.(10);const x=lpStart[0],y=lpStart[1];
     if(t.dataset.drag?.startsWith('task:'))taskMenu(t.dataset.drag.slice(5),x,y);else if(t.dataset.drag?.startsWith('event:')||t.classList.contains('ad'))eventMenu(t.dataset.id,x,y);else dayMenu(t.dataset.date,x,y)},500)},{passive:true});
 document.addEventListener('touchmove',e=>{if(!lpTimer)return;const p=e.touches[0];if(Math.hypot(p.clientX-lpStart[0],p.clientY-lpStart[1])>10){clearTimeout(lpTimer);lpTimer=null}},{passive:true});
@@ -1032,24 +1045,93 @@ document.addEventListener('touchend',e=>{clearTimeout(lpTimer);lpTimer=null;if(l
 document.addEventListener('click',e=>{const c=e.target.closest('.card');if(c&&!e.target.closest('.chk')&&!e.metaKey&&!e.ctrlKey){sel=c.dataset.id}},true);
 document.addEventListener('focusout',e=>{const el=e.target;if(el.id&&el.id.startsWith('add-')&&!el.value.trim()&&addingDate&&el.id==='add-'+addingDate){setTimeout(()=>{if(document.activeElement?.id!==el.id){addingDate=null;render()}},150)}});
 
-/* ---------- drag & drop ---------- */
-let drag=null;
-document.addEventListener('dragstart',e=>{const el=e.target.closest?.('[data-drag]');if(!el||el.getAttribute('draggable')!=='true')return;drag=el.dataset.drag;e.dataTransfer.setData('text/plain',drag);e.dataTransfer.effectAllowed='move'});
-document.addEventListener('dragend',()=>{drag=null;document.querySelectorAll('.drop,.ins').forEach(x=>x.classList.remove('drop','ins'))});
-document.addEventListener('dragover',e=>{if(!drag)return;const z=e.target.closest('[data-drop]');document.querySelectorAll('.drop,.ins').forEach(x=>x.classList.remove('drop','ins'));if(!z)return;
-  if(drag.startsWith('event:')&&z.dataset.drop!=='tl')return;e.preventDefault();z.classList.add('drop');const c=e.target.closest('.card');if(c&&z.dataset.drop==='day')c.classList.add('ins')});
-document.addEventListener('drop',e=>{const z=e.target.closest('[data-drop]');if(!z||!drag)return;e.preventDefault();const i=drag.indexOf(':');const kind=drag.slice(0,i),id=drag.slice(i+1);
-  if(z.dataset.drop==='tl'){const r=z.getBoundingClientRect();const H=r.height/24;const m=Math.max(0,Math.min(1425,Math.round((e.clientY-r.top)/H*60/15)*15));const date=z.dataset.date;
-    if(kind==='task'){const t=S.tasks.get(id);patch('tasks',id,{date,startTime:fromMin(m),order:t.date===date?t.order:nextOrder(date)})}
-    else{const ev=eventByKey(id);if(ev&&!ev.allDay){const len=toMin(ev.end)-toMin(ev.start);const ne=fromMin(Math.min(m+len,1439));
-      if(ev.src==='l')patch('events',id.slice(2),{date,start:fromMin(m),end:ne});
-      else{Object.assign(ev,{date,start:fromMin(m),end:ne});scheduleRender();gfetch(`${CAL}/calendars/${encodeURIComponent(ev.calId)}/events/${ev.gid}`,{method:'PATCH',body:JSON.stringify({start:{dateTime:`${date}T${fromMin(m)}:00`,timeZone:TZ},end:{dateTime:`${date}T${ne}:00`,timeZone:TZ}})}).then(()=>fetchEvents(true)).catch(()=>{toast('Could not move the event','');fetchEvents(true)})}}}}
-  else if(kind==='task'&&z.dataset.drop==='day'){const date=z.dataset.date;const c=e.target.closest('.card');let order;
-    if(c&&c.dataset.id!==id){const l=tasksOn(date).filter(([tid])=>tid!==id);const i2=l.findIndex(([tid])=>tid===c.dataset.id);const after=l[i2][1].order||0,before=i2>0?(l[i2-1][1].order||0):after-2000;order=(after+before)/2}else order=nextOrder(date);
-    const t=S.tasks.get(id);patch('tasks',id,{date,order,startTime:t.date===date?t.startTime:null})}
-  else if(kind==='task'&&z.dataset.drop==='backlog')patch('tasks',id,{date:null,startTime:null});
-  drag=null;document.querySelectorAll('.drop,.ins').forEach(x=>x.classList.remove('drop','ins'))});
-
+/* ---------- pointer drag & drop (mouse, pen and touch) ---------- */
+/* Hold-and-drag a card or calendar block. Drop on the timeline to timebox, on a day list to move/reorder,
+   on Backlog to unschedule. Drag a block's bottom edge to change its length. */
+let pd=null,justDragged=0;
+const SNAP=15;
+function dragDur(kind,id){if(kind==='task'){const t=S.tasks.get(id);return Math.max(t?.planned||30,15)}const e=DND.event(id);return e&&!e.allDay?Math.max(toMin(e.end)-toMin(e.start),15):60}
+function dragTitle(kind,id){return kind==='task'?(S.tasks.get(id)?.title||''):(DND.event(id)?.title||'')}
+function tlUnder(x,y){const el=document.elementFromPoint(x,y);return el&&el.closest('.tl')}
+function minuteAt(tl,y){const r=tl.getBoundingClientRect();return (y-r.top)/(r.height/24)*60}
+const snap=m=>Math.round(m/SNAP)*SNAP;
+document.addEventListener('pointerdown',e=>{if(pd||e.button!==0||!canWrite)return;
+  const src=e.target.closest('[data-drag]');if(!src||src.dataset.nodrag)return;
+  const rs=!!e.target.closest('.rs');if(!rs&&e.target.closest('.chk,input,textarea,select,a,[data-act="toggle"],[data-act="sub-toggle"]'))return;
+  const i=src.dataset.drag.indexOf(':');const kind=src.dataset.drag.slice(0,i),id=src.dataset.drag.slice(i+1);
+  const r=src.getBoundingClientRect();const tl=src.closest('.tl');
+  pd={kind,id,src,x0:e.clientX,y0:e.clientY,lx:e.clientX,ly:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,w:r.width,h:r.height,
+    mode:rs?'resize':'move',fromTl:!!tl,tlScope:src.closest('#cal')?'#cal':'#view',tlDate:tl?.dataset.date,active:false,moved:false,touch:e.pointerType==='touch',pid:e.pointerId,timer:null,target:null};
+  if(rs)e.preventDefault();
+  if(pd.touch)pd.timer=setTimeout(()=>{if(pd&&!pd.active){dragActivate();navigator.vibrate?.(12)}},320)});
+function dragActivate(){pd.active=true;document.body.classList.add('dragging');pd.src.classList.add('dragsrc');
+  if(pd.mode==='move'){const c=pd.src.cloneNode(true);c.classList.remove('sel','dragsrc');c.classList.add('dragclone');c.removeAttribute('data-drag');
+    c.style.width=pd.w+'px';if(pd.fromTl)c.style.height=Math.max(pd.h,28)+'px';document.body.appendChild(c);pd.clone=c}
+  dragLoop()}
+document.addEventListener('pointermove',e=>{if(!pd||e.pointerId!==pd.pid)return;const d=Math.hypot(e.clientX-pd.x0,e.clientY-pd.y0);
+  if(!pd.active){if(pd.touch){if(d>10){clearTimeout(pd.timer);pd=null}return}if(d<5)return;dragActivate()}
+  pd.lx=e.clientX;pd.ly=e.clientY;if(d>8)pd.moved=true;e.preventDefault();dragUpdate()});
+document.addEventListener('touchmove',e=>{if(pd&&pd.active)e.preventDefault()},{passive:false});
+function clearMarks(){document.querySelectorAll('.drop,.ins,.insb').forEach(x=>x.classList.remove('drop','ins','insb'));document.querySelectorAll('.ghost').forEach(g=>g.remove())}
+function ghostIn(tl,s,dur,title){const H=tl.getBoundingClientRect().height/24;const g=document.createElement('div');g.className='ghost';
+  g.style.top=(s/60*H)+'px';g.style.height=Math.max(dur/60*H-2,14)+'px';g.innerHTML=`<b>${esc(title)}</b><em>${fmtClock(fromMin(s))} – ${fmtClock(fromMin(Math.min(s+dur,1439)))}</em>`;tl.appendChild(g)}
+function dragUpdate(){if(!pd||!pd.active)return;clearMarks();const x=pd.lx,y=pd.ly;pd.target=null;
+  if(pd.mode==='resize'){const tl=document.querySelector(`${pd.tlScope} .tl[data-date="${pd.tlDate}"]`);if(!tl)return;
+    const s=pd.kind==='task'?toMin(S.tasks.get(pd.id)?.startTime):toMin(DND.event(pd.id)?.start);if(s==null)return;
+    const dur=Math.max(SNAP,Math.min(1440-s,snap(minuteAt(tl,y))-s));ghostIn(tl,s,dur,dragTitle(pd.kind,pd.id));pd.target={type:'resize',dur};return}
+  pd.clone.style.left=(x-Math.min(pd.ox,pd.w-20))+'px';pd.clone.style.top=(y-pd.oy)+'px';pd.clone.style.opacity='';
+  const el=document.elementFromPoint(x,y);if(!el)return;
+  const tl=el.closest('.tl');
+  if(tl){const dur=dragDur(pd.kind,pd.id);const top=pd.fromTl?y-pd.oy:y-Math.min(pd.oy,10);let s=snap(minuteAt(tl,top));s=Math.max(0,Math.min(1440-SNAP,s));
+    ghostIn(tl,s,dur,dragTitle(pd.kind,pd.id));pd.clone.style.opacity='0';pd.target={type:'tl',date:tl.dataset.date,min:s};return}
+  if(pd.kind!=='task')return;
+  if(el.closest('[data-v="backlog"]')){el.closest('[data-v="backlog"]').classList.add('drop');pd.target={type:'backlog',before:null};return}
+  let list=el.closest('[data-drop="day"],[data-drop="backlog"]');
+  if(!list){const col=el.closest('.col');if(col&&!col.classList.contains('objcol'))list=col.querySelector('[data-drop="day"]')}
+  if(!list)return;list.classList.add('drop');
+  const items=[...list.querySelectorAll('[data-drag^="task:"],.lrow')].filter(c=>c!==pd.src&&!c.classList.contains('dragclone'));
+  let before=null;for(const c of items){const r=c.getBoundingClientRect();if(y<r.top+r.height/2){before=c;break}}
+  if(before)before.classList.add('ins');else if(items.length)items[items.length-1].classList.add('insb');
+  const bid=before?(before.dataset.drag?.slice(5)||before.querySelector('[data-id]')?.dataset.id):null;
+  pd.target=list.dataset.drop==='backlog'?{type:'backlog',before:bid}:{type:'day',date:list.dataset.date,before:bid}}
+function dragLoop(){if(!pd||!pd.active)return;const x=pd.lx,y=pd.ly,E=48;
+  const el=document.elementFromPoint(x,y);const boxes=[el&&el.closest('.tlwrap'),el&&el.closest('.cards'),$('#view')].filter(Boolean);let moved=false;
+  for(const b of boxes){const r=b.getBoundingClientRect();if(x<r.left||x>r.right||y<r.top-20||y>r.bottom+20)continue;
+    const vy=y<r.top+E?-(r.top+E-y):y>r.bottom-E?(y-(r.bottom-E)):0;if(vy&&b.scrollHeight>b.clientHeight){b.scrollTop+=vy*0.35;moved=true}
+    if(b.id==='view'){const vx=x<r.left+E?-(r.left+E-x):x>r.right-E?(x-(r.right-E)):0;if(vx&&b.scrollWidth>b.clientWidth){b.scrollLeft+=vx*0.35;moved=true}}}
+  if(moved)dragUpdate();requestAnimationFrame(dragLoop)}
+function dragEnd(){if(!pd)return;clearTimeout(pd.timer);pd.clone?.remove();pd.src.classList.remove('dragsrc');document.body.classList.remove('dragging');clearMarks();pd=null}
+document.addEventListener('pointerup',e=>{if(!pd||e.pointerId!==pd.pid)return;const p=pd;
+  if(!p.active){clearTimeout(p.timer);pd=null;return}
+  justDragged=Date.now();dragEnd();
+  if(p.touch&&!p.moved){DND.tap(p.kind,p.id,e.clientX,e.clientY);return}
+  const t=p.target;if(!t)return;
+  if(t.type==='resize')DND.resize(p.kind,p.id,t.dur);
+  else if(t.type==='tl')DND.toTimeline(p.kind,p.id,t.date,t.min);
+  else if(t.type==='day')dropOnDay(p.id,t.date,t.before,p.fromTl);
+  else if(t.type==='backlog')dropOnDay(p.id,null,t.before,true)});
+document.addEventListener('pointercancel',e=>{if(pd&&e.pointerId===pd.pid)dragEnd()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pd&&pd.active){e.stopImmediatePropagation();dragEnd()}},true);
+document.addEventListener('click',e=>{if(Date.now()-justDragged<150){e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener('dragstart',e=>e.preventDefault());
+function dropOnDay(id,date,beforeId,unschedule){const t=S.tasks.get(id);if(!t)return;
+  const l=tasksOn(date).filter(([x])=>x!==id);let order;
+  const i=beforeId?l.findIndex(([x])=>x===beforeId):-1;
+  if(i<0)order=l.length?(l[l.length-1][1].order||0)+1000:Date.now();
+  else{const after=l[i][1].order||0,prev=i>0?(l[i-1][1].order||0):after-2000;order=(after+prev)/2}
+  const keep=t.date===date&&!unschedule;
+  patch('tasks',id,{date,order,startTime:keep?t.startTime:null});
+  if(date===null&&typeof toast==='function')toast('Moved to backlog',t.title)}
+const DND={
+  event:key=>eventByKey(key),
+  toTimeline(kind,id,date,m){if(kind==='task'){const t=S.tasks.get(id);patch('tasks',id,{date,startTime:fromMin(m),order:t.date===date?t.order:nextOrder(date)})}else moveEvent(id,date,m,null)},
+  resize(kind,id,dur){if(kind==='task')patch('tasks',id,{planned:dur});else{const ev=eventByKey(id);if(ev)moveEvent(id,ev.date,toMin(ev.start),dur)}},
+  tap(kind,id,x,y){if(kind==='task')taskMenu(id,x,y);else eventMenu(id,x,y)}};
+function moveEvent(key,date,m,dur){const ev=eventByKey(key);if(!ev||ev.allDay||!ev.editable)return;const len=dur??(toMin(ev.end)-toMin(ev.start));const ne=fromMin(Math.min(m+len,1439));
+  if(ev.src==='l'){patch('events',key.slice(2),{date,start:fromMin(m),end:ne});return}
+  Object.assign(ev,{date,start:fromMin(m),end:ne});scheduleRender();
+  gfetch(`${CAL}/calendars/${encodeURIComponent(ev.calId)}/events/${ev.gid}`,{method:'PATCH',body:JSON.stringify({start:{dateTime:`${date}T${fromMin(m)}:00`,timeZone:TZ},end:{dateTime:`${date}T${ne}:00`,timeZone:TZ}})})
+    .then(()=>fetchEvents(true)).catch(()=>{toast('Could not move the event','Reconnect Google and try again.');fetchEvents(true)})}
 /* ---------- toasts, install, clocks ---------- */
 function toast(title,sub,actions=''){const d=document.createElement('div');d.className='toast';d.innerHTML=`<div style="flex:1"><b>${esc(title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</div>${actions}<button class="ib" data-act="toast-close" aria-label="Dismiss">×</button>`;$('#toasts').appendChild(d);if(!actions)setTimeout(()=>d.remove(),4000);return d}
 function maybeShutdownToast(){const t=todayStr();if(new Date().getHours()<17||ritual(t).shutdown)return;if(ls.get('pl-shut-toast')===t||document.querySelector('.toast.shut'))return;ls.set('pl-shut-toast',t);
